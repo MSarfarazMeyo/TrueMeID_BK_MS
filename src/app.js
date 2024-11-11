@@ -23,13 +23,8 @@ app.use(express.json());
 app.use("/api", router);
 app.post("/compareFaces", compareFaces);
 
-// Serve static files from React's build directory
-app.use(express.static(path.join(__dirname, "../build")));
-
-// Handle all routes by sending the index.html
-// This is necessary for React Router to work properly
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../build", "index.html"));
+  res.send("server running");
 });
 
 const appPromise = async () => {
