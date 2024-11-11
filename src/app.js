@@ -6,14 +6,13 @@ const { router } = require("./routers");
 const bodyParser = require("body-parser");
 const connectToDB = require("./database/db");
 const compareFaces = require("../src/services/compareFace");
-const path = require("path");
 
 const port = process.env.PORT;
 const host = process.env.HOST;
 
 const app = express();
 
-app.use(cors());
+app.use(cors({ origin: "*" }));
 
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
