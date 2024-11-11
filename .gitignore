@@ -1,0 +1,67 @@
+# Dependency directories
+node_modules/
+
+# Distribution and build directories
+dist/
+build/
+out/
+*.log
+
+# Environment variables
+.env*
+
+# IDE/Editor specific files
+.vscode/
+.idea/
+
+# npm configuration
+*.npmrc
+
+# Test coverage
+coverage/
+
+# Logs
+logs/
+*.log*
+npm-debug.log*
+
+# System files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Dependency lock files
+package-lock.json
+yarn.lock
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Compiled binary addons
+node_modules/
+*.node
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.vercel

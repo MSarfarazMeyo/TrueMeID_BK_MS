@@ -1,0 +1,40 @@
+{
+  "name": "sumsub-be",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon ./api/index.js",
+    "dev": "nodemon ./api/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "vercel-build": "echo hello"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-rekognition": "^3.666.0",
+    "@aws-sdk/client-s3": "^3.666.0",
+    "@regulaforensics/document-reader-webclient": "^7.4.97",
+    "@regulaforensics/facesdk-webclient": "^7.4.23",
+    "aws-sdk": "^2.1691.0",
+    "axios": "^0.27.2",
+    "body-parser": "^1.20.3",
+    "chalk": "^5.3.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.3.0",
+    "mongoose": "^8.0.3",
+    "multer": "^1.4.5-lts.1",
+    "nodemon": "^3.0.1",
+    "ntp-client": "^0.5.3",
+    "path": "^0.12.7",
+    "qrcode": "^1.5.3",
+    "sharp": "^0.33.5",
+    "speakeasy": "^2.0.0",
+    "useragent": "^2.3.0",
+    "uuid": "^11.0.2"
+  }
+}
