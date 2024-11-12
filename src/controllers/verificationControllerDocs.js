@@ -5,6 +5,7 @@ const {
   Scenario,
 } = require("@regulaforensics/document-reader-webclient");
 const Session = require("../model/Session");
+
 const FaceResult = require("../model/FaceResult");
 const DocumentResult = require("../model/DocumentResult");
 const User = require("../model/user");
@@ -36,12 +37,12 @@ exports.verifyLink = async (req, res) => {
   }
 };
 exports.matchImages = async (req, res) => {
-  const { sessionId, imageSrc, img } = req.body;
-  if (!imageSrc || !img || !sessionId) {
+  const { applicantId, imageSrc, img } = req.body;
+  if (!imageSrc || !img || !applicantId) {
     return res.status(400).json({ error: "Missing required fields" });
   }
   try {
-    const session = await Session.findOne({ sessionId });
+    const session = await Applicant.findOne({ _id: applicantId });
     if (!session)
       return res.status(404).json({
         error:
@@ -71,7 +72,7 @@ exports.matchImages = async (req, res) => {
     const similarity = response.results?.map((result) => result.similarity);
     const highestSimilarity = Math.max(...similarity);
     if (response.msg === "FACER_OK" && highestSimilarity >= 0.9) {
-      const faceResult = new FaceResult({ sessionId, response });
+      const faceResult = new FaceResult({ applicantId, response });
       await faceResult.save();
       session.sessionUsed.matchImagesUsed = true;
       await session.save();
@@ -85,21 +86,21 @@ exports.matchImages = async (req, res) => {
   }
 };
 exports.processDocument = async (req, res) => {
-  const { sessionId, images } = req.body;
-  if (!sessionId || !images[0] || !images[1]) {
+  const { applicantId, images } = req.body;
+  if (!applicantId || !images[0] || !images[1]) {
     return res.status(400).json({ error: "Missing required fields" });
   }
   try {
-    const session = await Session.findOne({ sessionId });
+    const session = await Applicant.findOne({ _id: applicantId });
     if (!session)
       return res.status(404).json({
         error:
-          "The session ID provided is invalid/ Already Used. Please start a new session.",
+          "The Applicant ID provided is invalid/ Already Used. Please start a new session.",
       });
     if (session.sessionUsed.processUsed) {
       return res.status(400).json({
         error:
-          "This session has already been used for document processing. Please create a new session.",
+          "This Applicant has already been used for document processing. Please create a new Applicant.",
       });
     }
     const api = new DocumentReaderApi({
@@ -115,7 +116,7 @@ exports.processDocument = async (req, res) => {
     );
     const status = fieldList[ExpiryIndex]?.status;
     if (status === 1) {
-      const documentResult = new DocumentResult({ sessionId, response });
+      const documentResult = new DocumentResult({ applicantId, response });
       await documentResult.save();
       session.sessionUsed.processUsed = true;
       await session.save();
@@ -130,20 +131,21 @@ exports.processDocument = async (req, res) => {
   }
 };
 exports.getDetails = async (req, res) => {
-  const { id: sessionId } = req.params;
-  if (!sessionId) {
+  const { id: applicantId } = req.params;
+  if (!applicantId) {
     return res.status(400).json({ error: "Session ID not provided" });
   }
   try {
-    const session = await Session.findOne({ sessionId });
+    const session = await Applicant.findOne({ _id: applicantId });
     if (!session) {
       return res.status(404).json({
         error: "The session ID provided is invalid or does not exist.",
       });
     }
-    const faceResult = await FaceResult.findOne({ sessionId });
-    const documentResult = await DocumentResult.findOne({ sessionId });
+    const faceResult = await FaceResult.findOne({ applicantId });
+    const documentResult = await DocumentResult.findOne({ applicantId });
     const result = {
+      Applicant: session,
       imageResponse: faceResult ? faceResult.response : null,
       documentResponse: documentResult ? documentResult.response : null,
     };
