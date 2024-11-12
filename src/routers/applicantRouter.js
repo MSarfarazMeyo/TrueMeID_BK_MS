@@ -22,10 +22,35 @@ applicantRouter.post("/create-applicant", verifyAuth, async (req, res) => {
 
 applicantRouter.get("/get-all-applicants", verifyAuth, async (req, res) => {
   try {
-    const response = await Controller.updateApplicants(req.body);
+    const userId = req.user._id;
+    const page = parseInt(req.query.page) || 1; // Default to 1 if not provided
+    const searchText = req.query.searchText || "";
+    const response = await Controller.getApplicantData(
+      userId,
+      page,
+      searchText
+    );
     return res.status(response.code).json(response.data);
   } catch (error) {
-    return res.status(error.code).json(error.error);
+    console.log(error);
+
+    return res
+      .status(error.code || 500)
+      .json({ error: error.message || "An error occurred" });
+  }
+});
+
+applicantRouter.get("/get-dashboard-data", verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const response = await Controller.getDashboardData(userId);
+    return res.status(response.code).json(response.data);
+  } catch (error) {
+    console.log(error);
+
+    return res
+      .status(error.code || 500)
+      .json({ error: error.message || "An error occurred" });
   }
 });
 

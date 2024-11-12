@@ -7,6 +7,8 @@ const Sumsub = require("../utils/sumsub");
 const RiskLevel = require("../model/risk");
 const Image = require("../model/imageData");
 const User = require("../model/user");
+const DocumentResult = require("../model/DocumentResult");
+const FaceResult = require("../model/FaceResult");
 
 class applicantController {
   async createApplicant(name, userId) {
@@ -34,22 +36,102 @@ class applicantController {
     }
   }
 
-  async getApplicantData(externalId) {
+  async getApplicantData(userId, page = 1, searchText = "") {
     try {
-      const uri = `/resources/applicants/-;externalUserId=${externalId}/one`;
-      const headers = signRequest(uri, "GET");
+      // Set the number of applicants per page
+      const perPage = 10;
 
-      const response = await axios({
-        method: "GET",
-        url: `${SUMSUB_BASE_URL}${uri}`,
-        headers: headers,
+      // Define query for searching based on searchText
+      const searchQuery = searchText
+        ? {
+            userId: userId,
+            name: { $regex: searchText, $options: "i" }, // Case-insensitive search by name
+          }
+        : { userId: userId };
+
+      // Get the applicants for the requested page with search and pagination
+      const applicants = await Applicant.find(searchQuery)
+        .populate("userId", "name") // Populate user fields if needed
+        .skip((page - 1) * perPage) // Skip the number of applicants from previous pages
+        .limit(perPage) // Limit to the number of applicants per page
+        .lean();
+
+      // Count the total number of documents matching the query (for pagination)
+      const totalDocuments = await Applicant.countDocuments(searchQuery);
+      const totalPages = Math.ceil(totalDocuments / perPage);
+
+      // const documents = await DocumentResult.find({
+      //   applicantId: applicant._id,
+      // }).lean();
+      // const faceResults = await FaceResult.find({
+      //   applicantId: applicant._id,
+      // }).lean();
+
+      return {
+        code: 200,
+        data: {
+          applicants,
+          documents: [], // If needed, add your document fetching logic
+          faceResults: [], // If needed, add your face results fetching logic
+          totalPages,
+        },
+      };
+    } catch (error) {
+      console.log(error);
+      throw {
+        code: error.code || 500,
+        error: error.message || "Error retrieving applicant data",
+      };
+    }
+  }
+
+  async getDashboardData(userId) {
+    try {
+      // Get the total count of applicants
+      const totalApplicants = await Applicant.countDocuments({ userId });
+
+      // Get the count of applicants by their status (e.g., accepted, rejected, pending, etc.)
+      const acceptedCount = await Applicant.countDocuments({
+        userId,
+        "sessionUsed.processUsed": true,
+        "sessionUsed.matchImagesUsed": true,
+      });
+      const rejectedCount = await Applicant.countDocuments({
+        userId,
+        status: "Rejected",
+      });
+      const pendingCount = await Applicant.countDocuments({
+        userId,
+        "sessionUsed.processUsed": false,
+        "sessionUsed.matchImagesUsed": false,
+      });
+      const onHoldCount = await Applicant.countDocuments({
+        userId,
+        status: "OnHold",
+      });
+      const initializedCount = await Applicant.countDocuments({
+        userId,
+        status: "Initialized",
       });
 
-      return response.data;
+      // You can add more status checks or other statistics as needed
+
+      return {
+        code: 200,
+        data: {
+          totalApplicants,
+          acceptedCount,
+          rejectedCount,
+          pendingCount,
+          onHoldCount,
+          initializedCount,
+        },
+      };
     } catch (error) {
+      console.log(error);
       throw {
-        code: 404,
-        error: error,
+        code: error.code || 500,
+        error: error.message || "Error retrieving dashboard data",
       };
     }
   }
