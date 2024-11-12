@@ -12,15 +12,10 @@ const User = require("../model/user");
 const Applicant = require("../model/applicantModel");
 exports.verifyLink = async (req, res) => {
   try {
-    const { userId, applicantId } = req.query;
+    const { applicantId } = req.query;
 
     // Check if user and applicant exist
-    const user = await User.findById(userId);
     const applicant = await Applicant.findById(applicantId);
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
 
     if (!applicant) {
       return res.status(404).json({ error: "Applicant not found" });
