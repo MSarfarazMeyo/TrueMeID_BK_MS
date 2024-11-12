@@ -124,6 +124,8 @@ exports.processDocument = async (req, res) => {
     res.json(response);
   } catch (error) {
     console.error("Error processing document:", error.message);
+    console.error("Error processing document:", error);
+
     res.status(500).json({
       error:
         "Sorry, we could not process the document. Please try again later.",
